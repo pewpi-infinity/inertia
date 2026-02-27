@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>No Inertia — Variant 8</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0a0f; color: #e2e8f0; min-height: 100vh; }
+
+        /* Navigation */
+        .site-nav { background: rgba(10,10,15,0.92); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.07); }
+        .nav-container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+        .nav-brand { font-size: 1.3rem; font-weight: 800; color: #fff; text-decoration: none; letter-spacing: -0.5px; }
+        .nav-brand span { color: #f59e0b; }
+        .nav-links { list-style: none; display: flex; gap: 0.25rem; }
+        .nav-links li a { color: #94a3b8; text-decoration: none; padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.875rem; transition: background 0.2s, color 0.2s; }
+        .nav-links li a:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .nav-links li a.active { background: rgba(245,158,11,0.15); color: #f59e0b; font-weight: 600; }
+
+        /* Hero */
+        .hero { padding: 6rem 1.5rem 5rem; text-align: center; background: radial-gradient(ellipse at 50% -20%, rgba(245,158,11,0.12) 0%, transparent 60%); position: relative; overflow: hidden; }
+        .hero-badge { display: inline-block; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); color: #f59e0b; font-size: 0.75rem; font-weight: 700; padding: 0.3rem 0.9rem; border-radius: 20px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 1.5rem; }
+        .hero h1 { font-size: 4rem; font-weight: 900; letter-spacing: -2px; line-height: 1.1; margin-bottom: 1.25rem; color: #fff; }
+        .hero h1 em { font-style: normal; background: linear-gradient(135deg, #f59e0b, #ef4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero p { font-size: 1.2rem; color: #94a3b8; max-width: 580px; margin: 0 auto 2.5rem; line-height: 1.65; }
+        .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .btn-primary { background: linear-gradient(135deg, #f59e0b, #d97706); color: #0a0a0f; font-weight: 700; padding: 0.85rem 2rem; border-radius: 10px; text-decoration: none; font-size: 1rem; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 20px rgba(245,158,11,0.3); border: none; cursor: pointer; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(245,158,11,0.45); }
+        .btn-secondary { background: rgba(255,255,255,0.06); color: #e2e8f0; font-weight: 600; padding: 0.85rem 2rem; border-radius: 10px; text-decoration: none; font-size: 1rem; border: 1px solid rgba(255,255,255,0.12); transition: background 0.2s; cursor: pointer; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+        /* Feature badges */
+        .hero-features { display: flex; gap: 2rem; justify-content: center; margin-top: 3rem; flex-wrap: wrap; }
+        .hero-feat { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: #64748b; }
+        .hero-feat .icon { color: #4ade80; }
+
+        /* Section Headers */
+        .section-header { text-align: center; margin-bottom: 3rem; }
+        .section-badge { display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #f59e0b; margin-bottom: 0.75rem; }
+        .section-header h2 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; color: #fff; margin-bottom: 0.75rem; }
+        .section-header p { color: #64748b; font-size: 1rem; max-width: 520px; margin: 0 auto; }
+
+        /* Features */
+        .features { padding: 5rem 1.5rem; max-width: 1200px; margin: 0 auto; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        .feature-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 1.75rem; transition: transform 0.2s, border-color 0.2s; }
+        .feature-card:hover { transform: translateY(-4px); border-color: rgba(245,158,11,0.25); }
+        .feature-card-icon { width: 48px; height: 48px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 1.25rem; }
+        .feature-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: #fff; }
+        .feature-card p { font-size: 0.875rem; color: #64748b; line-height: 1.6; }
+
+        /* Testimonials */
+        .testimonials { padding: 5rem 1.5rem; background: rgba(255,255,255,0.02); }
+        .testimonials-inner { max-width: 1200px; margin: 0 auto; }
+        .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+        .testimonial-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.75rem; position: relative; }
+        .testimonial-card::before { content: '"'; position: absolute; top: 1rem; right: 1.25rem; font-size: 4rem; color: rgba(245,158,11,0.15); font-family: Georgia, serif; line-height: 1; }
+        .stars { color: #f59e0b; font-size: 0.85rem; margin-bottom: 0.75rem; letter-spacing: 2px; }
+        .testimonial-text { font-size: 0.9rem; color: #94a3b8; line-height: 1.7; margin-bottom: 1.25rem; font-style: italic; }
+        .testimonial-author { display: flex; align-items: center; gap: 0.75rem; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; font-size: 1.25rem; display: flex; align-items: center; justify-content: center; background: rgba(245,158,11,0.15); }
+        .author-info .name { font-weight: 700; font-size: 0.875rem; color: #fff; }
+        .author-info .role { font-size: 0.75rem; color: #64748b; margin-top: 0.1rem; }
+
+        /* Gallery */
+        .gallery { padding: 5rem 1.5rem; max-width: 1200px; margin: 0 auto; }
+        .gallery-filters { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+        .filter-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; padding: 0.45rem 1rem; border-radius: 20px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+        .filter-btn.active, .filter-btn:hover { background: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.35); color: #f59e0b; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+        .gallery-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 2.5rem; cursor: pointer; transition: transform 0.2s, border-color 0.2s; position: relative; overflow: hidden; }
+        .gallery-item:hover { transform: scale(1.04); border-color: rgba(245,158,11,0.3); }
+        .gallery-item .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.75); opacity: 0; transition: opacity 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem; }
+        .gallery-item:hover .overlay { opacity: 1; }
+        .gallery-item .overlay .title { font-size: 0.8rem; font-weight: 700; color: #fff; text-align: center; margin-top: 0.5rem; }
+        .gallery-item .cat-badge { position: absolute; top: 0.5rem; left: 0.5rem; background: rgba(245,158,11,0.8); color: #0a0a0f; font-size: 0.6rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 10px; text-transform: uppercase; }
+
+        /* CTA */
+        .cta-section { padding: 6rem 1.5rem; text-align: center; background: radial-gradient(ellipse at 50% 50%, rgba(245,158,11,0.08) 0%, transparent 70%); }
+        .cta-section h2 { font-size: 3rem; font-weight: 900; letter-spacing: -1.5px; color: #fff; margin-bottom: 1rem; }
+        .cta-section p { color: #64748b; font-size: 1.05rem; margin-bottom: 2.5rem; max-width: 480px; margin-left: auto; margin-right: auto; }
+
+        /* Footer */
+        footer { border-top: 1px solid rgba(255,255,255,0.07); padding: 2rem 1.5rem; text-align: center; color: #475569; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+<nav class="site-nav">
+    <div class="nav-container">
+        <a href="#" class="nav-brand">No <span>Inertia</span></a>
+        <ul class="nav-links">
+            <li><a href="mario-shop-world.html">Mario Shop World</a></li>
+            <li><a href="ignition-index.html">Ignition Index</a></li>
+            <li><a href="infinity-ai-terminal.html">Infinity AI Terminal</a></li>
+            <li><a href="no-inertia-8.html" class="active">No Inertia 8</a></li>
+            <li><a href="no-inertia-.html">No Inertia</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-badge">Version 8 — Accelerate Everything</div>
+    <h1>Overcome <em>Every Obstacle.</em><br>Build With No Inertia.</h1>
+    <p>The next-generation platform for teams that move fast, think clearly, and ship things that matter. Zero drag. Maximum momentum.</p>
+    <div class="hero-cta">
+        <button class="btn-primary">Get Started Free</button>
+        <button class="btn-secondary">Watch Demo ▶</button>
+    </div>
+    <div class="hero-features">
+        <div class="hero-feat"><span class="icon">✓</span> No setup required</div>
+        <div class="hero-feat"><span class="icon">✓</span> Works offline-first</div>
+        <div class="hero-feat"><span class="icon">✓</span> Ships in minutes</div>
+        <div class="hero-feat"><span class="icon">✓</span> Open source core</div>
+    </div>
+</section>
+
+<!-- Features -->
+<div class="features">
+    <div class="section-header">
+        <div class="section-badge">Features</div>
+        <h2>Everything You Need</h2>
+        <p>Designed from the ground up to eliminate friction and amplify velocity across your entire workflow</p>
+    </div>
+    <div class="features-grid" id="featuresGrid"></div>
+</div>
+
+<!-- Testimonials -->
+<div class="testimonials">
+    <div class="testimonials-inner">
+        <div class="section-header">
+            <div class="section-badge">Testimonials</div>
+            <h2>Trusted by Builders</h2>
+            <p>Hear from teams who've eliminated inertia from their workflow and never looked back</p>
+        </div>
+        <div class="testimonials-grid" id="testimonialsGrid"></div>
+    </div>
+</div>
+
+<!-- Gallery -->
+<div class="gallery">
+    <div class="section-header">
+        <div class="section-badge">Gallery</div>
+        <h2>Built With No Inertia</h2>
+        <p>A showcase of projects, interfaces, and systems created using our platform</p>
+    </div>
+    <div class="gallery-filters">
+        <button class="filter-btn active" onclick="filterGallery('all', this)">All</button>
+        <button class="filter-btn" onclick="filterGallery('apps', this)">Apps</button>
+        <button class="filter-btn" onclick="filterGallery('ui', this)">UI/UX</button>
+        <button class="filter-btn" onclick="filterGallery('data', this)">Data</button>
+        <button class="filter-btn" onclick="filterGallery('games', this)">Games</button>
+    </div>
+    <div class="gallery-grid" id="galleryGrid"></div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+    <h2>Ready to Accelerate?</h2>
+    <p>Join thousands of builders who've eliminated inertia from their development workflow.</p>
+    <button class="btn-primary" style="font-size:1.05rem; padding:1rem 2.5rem">Start Building Today →</button>
+</div>
+
+<footer>
+    <p>© 2025 No Inertia — Variant 8 · <a href="ignition-index.html" style="color:#f59e0b;text-decoration:none">Ignition Index</a> · Built with zero drag</p>
+</footer>
+
+<script>
+const features = [
+    { icon: '⚡', title: 'Instant Deployment', desc: 'Push your code and it is live within seconds. No configuration files, no waiting, no friction.' },
+    { icon: '🔄', title: 'Zero-Config Sync', desc: 'State and data sync across all clients in real-time without a single line of configuration.' },
+    { icon: '🧠', title: 'AI-First Architecture', desc: 'Every component is designed to integrate seamlessly with AI models and knowledge systems.' },
+    { icon: '📱', title: 'Offline-First', desc: 'Applications work perfectly without internet. Sync happens automatically when connectivity returns.' },
+    { icon: '🔐', title: 'Security by Default', desc: 'End-to-end encryption, zero-trust networking, and automatic credential rotation out of the box.' },
+    { icon: '📊', title: 'Real-Time Analytics', desc: 'Understand exactly how your users interact with every component through live event streams.' },
+    { icon: '🌐', title: 'Edge Deployment', desc: 'Your app runs at the edge, closest to your users, with sub-10ms response times globally.' },
+    { icon: '♻️', title: 'Hot Reloading', desc: 'See changes in real-time without refreshing. State is preserved across all hot updates.' },
+    { icon: '🔗', title: 'Modular by Design', desc: 'Mix, match, and compose any combination of modules without compatibility headaches.' },
+];
+
+document.getElementById('featuresGrid').innerHTML = features.map(f =>
+    `<div class="feature-card">
+        <div class="feature-card-icon">${f.icon}</div>
+        <h3>${f.title}</h3>
+        <p>${f.desc}</p>
+    </div>`
+).join('');
+
+const testimonials = [
+    { stars: 5, text: 'No Inertia completely transformed how our team ships product. We went from weekly releases to multiple deploys per day without any extra overhead.', name: 'Sarah Chen', role: 'CTO, Velocity Labs', avatar: '👩‍💻' },
+    { stars: 5, text: 'I have never experienced a platform that eliminates so much boilerplate while still giving you full control when you need it. Absolutely revolutionary.', name: 'Marcus Rivera', role: 'Lead Engineer, BuildFast', avatar: '👨‍🔬' },
+    { stars: 5, text: 'The offline-first architecture saved our product when we launched in markets with unreliable internet. Users never noticed a difference.', name: 'Priya Nair', role: 'Product Lead, GlobalApp', avatar: '👩‍🎨' },
+    { stars: 5, text: 'Our onboarding time dropped from 2 weeks to 2 days. The zero-config approach means new engineers are shipping real features on day one.', name: 'James Wu', role: 'Engineering Manager, Rocket Co', avatar: '��‍💼' },
+    { stars: 5, text: 'The AI-first architecture means we can add intelligence features to any part of our product in minutes. It is like having superpowers.', name: 'Elena Kozlov', role: 'AI Research Lead, Nexus AI', avatar: '👩‍🔬' },
+    { stars: 5, text: 'Real-time analytics out of the box meant we could make data-driven decisions from day one. We cut our bounce rate by 40% in the first month.', name: 'Tom Okafor', role: 'Growth Lead, ScaleUp', avatar: '🧑‍🚀' },
+];
+
+document.getElementById('testimonialsGrid').innerHTML = testimonials.map(t =>
+    `<div class="testimonial-card">
+        <div class="stars">${'★'.repeat(t.stars)}</div>
+        <p class="testimonial-text">${t.text}</p>
+        <div class="testimonial-author">
+            <div class="avatar">${t.avatar}</div>
+            <div class="author-info"><div class="name">${t.name}</div><div class="role">${t.role}</div></div>
+        </div>
+    </div>`
+).join('');
+
+const galleryItems = [
+    { emoji: '🛒', title: 'Shop Engine', cat: 'apps' }, { emoji: '📊', title: 'Analytics Dash', cat: 'data' },
+    { emoji: '🎮', title: 'Physics Game', cat: 'games' }, { emoji: '🌐', title: 'Web Portal', cat: 'ui' },
+    { emoji: '🤖', title: 'AI Terminal', cat: 'apps' }, { emoji: '📱', title: 'Mobile App', cat: 'ui' },
+    { emoji: '🎨', title: 'Design Tool', cat: 'ui' }, { emoji: '🔮', title: 'Oracle Graph', cat: 'data' },
+    { emoji: '🚀', title: 'Launch Pad', cat: 'apps' }, { emoji: '🎯', title: 'Target Tracker', cat: 'data' },
+    { emoji: '🌸', title: 'Garden Sim', cat: 'games' }, { emoji: '💎', title: 'Gem Collector', cat: 'games' },
+];
+
+let currentFilter = 'all';
+function filterGallery(cat, btn) {
+    currentFilter = cat;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderGallery();
+}
+
+function renderGallery() {
+    const items = currentFilter === 'all' ? galleryItems : galleryItems.filter(i => i.cat === currentFilter);
+    document.getElementById('galleryGrid').innerHTML = items.map(item =>
+        `<div class="gallery-item">
+            <span class="cat-badge">${item.cat}</span>
+            ${item.emoji}
+            <div class="overlay"><span style="font-size:2rem">${item.emoji}</span><span class="title">${item.title}</span></div>
+        </div>`
+    ).join('');
+}
+
+renderGallery();
+</script>
+</body>
+</html>

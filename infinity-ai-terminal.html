@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinity AI Terminal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Courier New', monospace; background: #020c05; color: #00ff88; min-height: 100vh; }
+
+        /* Navigation */
+        .site-nav { background: rgba(2,12,5,0.95); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(0,255,136,0.2); }
+        .nav-container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+        .nav-brand { font-size: 1.2rem; font-weight: 700; color: #00ff88; text-decoration: none; letter-spacing: 2px; font-family: 'Courier New', monospace; }
+        .nav-links { list-style: none; display: flex; gap: 0.25rem; }
+        .nav-links li a { color: #4d9966; text-decoration: none; padding: 0.4rem 0.75rem; border-radius: 4px; font-size: 0.8rem; transition: background 0.2s, color 0.2s; font-family: sans-serif; }
+        .nav-links li a:hover { background: rgba(0,255,136,0.1); color: #00ff88; }
+        .nav-links li a.active { background: rgba(0,255,136,0.15); color: #00ff88; font-weight: 600; border: 1px solid rgba(0,255,136,0.3); }
+
+        /* Layout */
+        .layout { max-width: 1400px; margin: 0 auto; padding: 1.5rem 1rem; display: grid; grid-template-columns: 1fr 380px; gap: 1.5rem; }
+
+        /* Terminal Panel */
+        .terminal-panel { background: #020c05; border: 1px solid rgba(0,255,136,0.25); border-radius: 10px; overflow: hidden; }
+        .terminal-header { background: #041a09; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid rgba(0,255,136,0.15); }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot-r { background: #ff5f57; } .dot-y { background: #febc2e; } .dot-g { background: #28c840; }
+        .terminal-title { margin-left: 0.5rem; font-size: 0.8rem; color: #4d9966; letter-spacing: 1px; }
+        .terminal-body { padding: 1rem; height: 420px; overflow-y: auto; font-size: 0.82rem; line-height: 1.7; }
+        .terminal-body::-webkit-scrollbar { width: 4px; }
+        .terminal-body::-webkit-scrollbar-thumb { background: rgba(0,255,136,0.3); border-radius: 2px; }
+        .line { margin-bottom: 2px; }
+        .line.cmd { color: #00ff88; } .line.cmd::before { content: '❯ '; color: #00cc6a; }
+        .line.out { color: #7dd3a8; }
+        .line.err { color: #ff6b6b; }
+        .line.info { color: #63b3ed; }
+        .line.warn { color: #fbbf24; }
+        .line.graph { color: #c4b5fd; }
+        .line.blank { height: 0.5rem; }
+        .blink { animation: blink 1s step-end infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+        .terminal-input-row { display: flex; align-items: center; padding: 0.75rem 1rem; border-top: 1px solid rgba(0,255,136,0.15); background: #041a09; gap: 0.5rem; }
+        .prompt-sym { color: #00ff88; font-size: 0.9rem; }
+        #termInput { flex: 1; background: transparent; border: none; outline: none; color: #00ff88; font-family: 'Courier New', monospace; font-size: 0.85rem; caret-color: #00ff88; }
+
+        /* Right sidebar */
+        .sidebar { display: flex; flex-direction: column; gap: 1.25rem; }
+
+        /* Search Panel */
+        .search-panel { background: #020c05; border: 1px solid rgba(0,255,136,0.2); border-radius: 10px; padding: 1.25rem; }
+        .search-panel h3 { font-size: 0.85rem; color: #00ff88; letter-spacing: 1.5px; margin-bottom: 1rem; text-transform: uppercase; font-family: sans-serif; }
+        .search-bar { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+        #searchInput { flex: 1; background: rgba(0,255,136,0.05); border: 1px solid rgba(0,255,136,0.25); border-radius: 6px; padding: 0.5rem 0.75rem; color: #00ff88; font-family: 'Courier New', monospace; font-size: 0.82rem; outline: none; }
+        #searchInput::placeholder { color: #2d6644; }
+        #searchInput:focus { border-color: rgba(0,255,136,0.5); }
+        .search-btn { background: rgba(0,255,136,0.15); border: 1px solid rgba(0,255,136,0.35); color: #00ff88; padding: 0.5rem 0.9rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: background 0.2s; font-family: sans-serif; }
+        .search-btn:hover { background: rgba(0,255,136,0.25); }
+        .results { max-height: 200px; overflow-y: auto; }
+        .result-item { padding: 0.6rem 0.5rem; border-bottom: 1px solid rgba(0,255,136,0.08); cursor: pointer; transition: background 0.15s; }
+        .result-item:hover { background: rgba(0,255,136,0.06); }
+        .result-item .r-title { font-size: 0.82rem; color: #4ade80; font-family: sans-serif; margin-bottom: 0.15rem; }
+        .result-item .r-match { font-size: 0.72rem; color: #4d9966; font-family: sans-serif; line-height: 1.4; }
+        .r-match em { color: #00ff88; font-style: normal; font-weight: bold; }
+        .no-results { color: #4d9966; font-size: 0.8rem; font-family: sans-serif; padding: 0.5rem 0; }
+
+        /* Knowledge Graph */
+        .graph-panel { background: #020c05; border: 1px solid rgba(0,255,136,0.2); border-radius: 10px; overflow: hidden; }
+        .graph-panel-header { padding: 0.9rem 1.25rem; background: #041a09; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(0,255,136,0.15); }
+        .graph-panel-header h3 { font-size: 0.85rem; color: #00ff88; letter-spacing: 1.5px; text-transform: uppercase; font-family: sans-serif; }
+        .graph-legend { display: flex; gap: 0.75rem; font-size: 0.65rem; font-family: sans-serif; }
+        .leg { display: flex; align-items: center; gap: 0.3rem; color: #4d9966; }
+        .leg-dot { width: 8px; height: 8px; border-radius: 50%; }
+        #graphCanvas { display: block; }
+
+        /* Info Panel */
+        .info-panel { background: #020c05; border: 1px solid rgba(0,255,136,0.2); border-radius: 10px; padding: 1.25rem; }
+        .info-panel h3 { font-size: 0.85rem; color: #00ff88; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 1rem; font-family: sans-serif; }
+        .stat-row { display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid rgba(0,255,136,0.07); font-size: 0.78rem; }
+        .stat-row:last-child { border-bottom: none; }
+        .stat-key { color: #4d9966; font-family: sans-serif; }
+        .stat-val { color: #00ff88; }
+        .cmd-list { list-style: none; }
+        .cmd-list li { font-size: 0.78rem; padding: 0.3rem 0; border-bottom: 1px solid rgba(0,255,136,0.06); display: flex; gap: 0.75rem; }
+        .cmd-list li:last-child { border-bottom: none; }
+        .cmd-name { color: #00ff88; min-width: 80px; }
+        .cmd-desc { color: #4d9966; font-family: sans-serif; }
+    </style>
+</head>
+<body>
+
+<nav class="site-nav">
+    <div class="nav-container">
+        <a href="#" class="nav-brand">[∞ INERTIA]</a>
+        <ul class="nav-links">
+            <li><a href="mario-shop-world.html">Mario Shop World</a></li>
+            <li><a href="ignition-index.html">Ignition Index</a></li>
+            <li><a href="infinity-ai-terminal.html" class="active">Infinity AI Terminal</a></li>
+            <li><a href="no-inertia-8.html">No Inertia 8</a></li>
+            <li><a href="no-inertia-.html">No Inertia</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="layout">
+    <!-- Terminal -->
+    <div class="terminal-panel">
+        <div class="terminal-header">
+            <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+            <span class="terminal-title">INFINITY AI TERMINAL v∞.0 — ZERO-API MODE</span>
+        </div>
+        <div class="terminal-body" id="termBody"></div>
+        <div class="terminal-input-row">
+            <span class="prompt-sym">❯</span>
+            <input type="text" id="termInput" placeholder="type a command or query..." autocomplete="off" spellcheck="false">
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Zero-API Search -->
+        <div class="search-panel">
+            <h3>⚡ Zero-API Search</h3>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search knowledge base...">
+                <button class="search-btn" onclick="doSearch()">Search</button>
+            </div>
+            <div class="results" id="searchResults"><p class="no-results">Start typing to search the local knowledge graph</p></div>
+        </div>
+
+        <!-- Knowledge Graph -->
+        <div class="graph-panel">
+            <div class="graph-panel-header">
+                <h3>🕸️ Knowledge Graph</h3>
+                <div class="graph-legend">
+                    <div class="leg"><div class="leg-dot" style="background:#00ff88"></div>Core</div>
+                    <div class="leg"><div class="leg-dot" style="background:#63b3ed"></div>Module</div>
+                    <div class="leg"><div class="leg-dot" style="background:#c4b5fd"></div>Concept</div>
+                </div>
+            </div>
+            <canvas id="graphCanvas" width="380" height="240"></canvas>
+        </div>
+
+        <!-- Stats & Commands -->
+        <div class="info-panel">
+            <h3>📡 System Stats</h3>
+            <div class="stat-row"><span class="stat-key">Mode</span><span class="stat-val">ZERO-API</span></div>
+            <div class="stat-row"><span class="stat-key">Knowledge Nodes</span><span class="stat-val" id="nodeCount">0</span></div>
+            <div class="stat-row"><span class="stat-key">Graph Edges</span><span class="stat-val" id="edgeCount">0</span></div>
+            <div class="stat-row"><span class="stat-key">Queries Run</span><span class="stat-val" id="queryCount">0</span></div>
+            <div class="stat-row"><span class="stat-key">Cache Hits</span><span class="stat-val" id="cacheHits">100%</span></div>
+        </div>
+
+        <div class="info-panel">
+            <h3>💡 Commands</h3>
+            <ul class="cmd-list">
+                <li><span class="cmd-name">help</span><span class="cmd-desc">Show all commands</span></li>
+                <li><span class="cmd-name">search &lt;q&gt;</span><span class="cmd-desc">Search knowledge graph</span></li>
+                <li><span class="cmd-name">graph</span><span class="cmd-desc">Redraw knowledge graph</span></li>
+                <li><span class="cmd-name">nodes</span><span class="cmd-desc">List all knowledge nodes</span></li>
+                <li><span class="cmd-name">analyze &lt;q&gt;</span><span class="cmd-desc">AI-style analysis</span></li>
+                <li><span class="cmd-name">clear</span><span class="cmd-desc">Clear terminal</span></li>
+                <li><span class="cmd-name">status</span><span class="cmd-desc">Show system status</span></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+// Knowledge Base (Zero-API — all client-side)
+const knowledgeBase = [
+    { id: 1, title: 'Capacitor Physics Engine', content: 'A real-time physics simulation engine using capacitor-like charge mechanics to simulate coin and ball trajectories with bouncing, gravity inversion, and platform collision detection.', tags: ['physics', 'simulation', 'mario', 'capacitor'] },
+    { id: 2, title: 'Zero-API Architecture', content: 'Client-side only search and AI inference system that operates entirely without external API calls. Uses local knowledge graphs, indexed data structures, and fuzzy matching algorithms.', tags: ['api', 'client-side', 'search', 'local'] },
+    { id: 3, title: 'Knowledge Graph Structure', content: 'Nodes represent concepts, modules, and entities. Edges encode relationships like "uses", "contains", "depends-on". Traversal uses BFS/DFS for semantic path finding.', tags: ['graph', 'nodes', 'edges', 'semantic', 'knowledge'] },
+    { id: 4, title: 'Token Economics System', content: 'The token system in Mario Shop World uses an in-browser economy where tokens are earned through interactions and spent on items. Persisted via localStorage with no server dependency.', tags: ['tokens', 'economy', 'mario', 'shop', 'localstorage'] },
+    { id: 5, title: 'Ignition Index Hub', content: 'Central navigation and monitoring hub for all Inertia system modules. Features animated orb visualization, real-time module status cards, activity feed, and system health metrics.', tags: ['hub', 'navigation', 'ignition', 'modules', 'orb'] },
+    { id: 6, title: 'Animated Orb Technology', content: 'Pure CSS/JS animated orb using radial gradients, keyframe animations, and layered pseudo-element rings. Represents the pulsing core of the Ignition Index system.', tags: ['animation', 'css', 'orb', 'gradients', 'visual'] },
+    { id: 7, title: 'No Inertia Landing Pages', content: 'Two landing page variants — No Inertia 8 with features/testimonials/gallery, and No Inertia Core with team profiles, journey timeline, and strategic analysis sections.', tags: ['landing', 'page', 'testimonials', 'team', 'timeline'] },
+    { id: 8, title: 'Inertia Navigation System', content: 'Cross-page navigation system using relative URLs linking all five HTML pages: mario-shop-world, ignition-index, infinity-ai-terminal, no-inertia-8, no-inertia-.', tags: ['navigation', 'urls', 'links', 'pages', 'html'] },
+    { id: 9, title: 'Fuzzy Search Algorithm', content: 'Client-side fuzzy text matching that tokenizes query terms, scores documents by term frequency and title match weight, then returns ranked results with highlighted match fragments.', tags: ['search', 'fuzzy', 'algorithm', 'text', 'ranking'] },
+    { id: 10, title: 'Canvas Rendering Pipeline', content: 'HTML5 Canvas used for both the physics simulation and the knowledge graph visualization. Implements double-buffering, requestAnimationFrame loop, and WebGL-free 2D rendering.', tags: ['canvas', 'rendering', '2d', 'animation', 'html5'] },
+    { id: 11, title: 'Gallery Grid Component', content: 'Responsive CSS grid gallery in No Inertia 8 featuring lightbox-style item expansion, hover effects, and category filtering with pure JavaScript.', tags: ['gallery', 'grid', 'css', 'responsive', 'lightbox'] },
+    { id: 12, title: 'Timeline Journey Component', content: 'Vertical journey timeline in No Inertia Core showing organizational milestones, animated line drawing on scroll, and event detail cards.', tags: ['timeline', 'journey', 'scroll', 'milestones', 'animation'] },
+];
+
+// Graph nodes
+const graphNodes = [
+    { id: 1, label: 'Inertia', x: 190, y: 120, r: 14, color: '#00ff88', type: 'core' },
+    { id: 2, label: 'Physics', x: 80, y: 60, r: 10, color: '#63b3ed', type: 'module' },
+    { id: 3, label: 'AI', x: 300, y: 55, r: 10, color: '#63b3ed', type: 'module' },
+    { id: 4, label: 'Mario', x: 55, y: 150, r: 9, color: '#c4b5fd', type: 'concept' },
+    { id: 5, label: 'Search', x: 340, y: 140, r: 9, color: '#c4b5fd', type: 'concept' },
+    { id: 6, label: 'Tokens', x: 75, y: 210, r: 8, color: '#c4b5fd', type: 'concept' },
+    { id: 7, label: 'Graph', x: 310, y: 200, r: 9, color: '#c4b5fd', type: 'concept' },
+    { id: 8, label: 'Navigation', x: 190, y: 210, r: 9, color: '#63b3ed', type: 'module' },
+    { id: 9, label: 'Canvas', x: 150, y: 50, r: 8, color: '#c4b5fd', type: 'concept' },
+    { id: 10, label: 'Orb', x: 250, y: 170, r: 8, color: '#c4b5fd', type: 'concept' },
+];
+const graphEdges = [[1,2],[1,3],[1,4],[1,8],[2,4],[2,9],[3,5],[3,7],[4,6],[5,7],[8,4],[8,5],[1,10],[3,10],[1,9]];
+
+document.getElementById('nodeCount').textContent = knowledgeBase.length;
+document.getElementById('edgeCount').textContent = graphEdges.length;
+
+// Terminal
+let queryCount = 0;
+const termBody = document.getElementById('termBody');
+function addLine(text, cls = 'out') {
+    const d = document.createElement('div');
+    d.className = `line ${cls}`;
+    d.innerHTML = text;
+    termBody.appendChild(d);
+    termBody.scrollTop = termBody.scrollHeight;
+}
+function addBlank() { addLine('', 'blank'); }
+
+function boot() {
+    const lines = [
+        ['[∞] INFINITY AI TERMINAL v∞.0 — INITIALIZING...', 'info'],
+        ['[✓] Zero-API mode active — no external calls required', 'out'],
+        [`[✓] Knowledge graph loaded — ${knowledgeBase.length} nodes, ${graphEdges.length} edges`, 'out'],
+        ['[✓] Fuzzy search engine ready', 'out'],
+        ['[✓] Canvas rendering pipeline initialized', 'out'],
+        ['', 'blank'],
+        ['Welcome to the Infinity AI Terminal.', 'graph'],
+        ['Type "help" for available commands, or search the knowledge base directly.', 'graph'],
+        ['', 'blank'],
+    ];
+    lines.forEach(([t, c], i) => setTimeout(() => addLine(t, c), i * 120));
+}
+
+function runCommand(cmd) {
+    addLine(cmd, 'cmd');
+    queryCount++;
+    document.getElementById('queryCount').textContent = queryCount;
+    const parts = cmd.trim().split(' ');
+    const verb = parts[0].toLowerCase();
+    const args = parts.slice(1).join(' ');
+
+    if (verb === 'help') {
+        addLine('Available commands:', 'info');
+        [['search &lt;query&gt;', 'Search the knowledge graph'],['analyze &lt;topic&gt;','Generate analysis'],['graph','Redraw knowledge graph'],['nodes','List all knowledge nodes'],['status','System status'],['clear','Clear terminal']].forEach(([c,d]) => addLine(`  <span style="color:#00ff88">${c}</span> — ${d}`, 'out'));
+    } else if (verb === 'search') {
+        if (!args) { addLine('Usage: search &lt;query&gt;', 'warn'); return; }
+        const results = fuzzySearch(args);
+        if (results.length === 0) { addLine(`No results for "${args}"`, 'warn'); }
+        else { addLine(`Found ${results.length} result(s) for "${args}":`, 'info'); results.forEach(r => addLine(`  [${r.id}] ${r.title}`, 'graph')); }
+        document.getElementById('searchInput').value = args; doSearch();
+    } else if (verb === 'analyze') {
+        const topic = args || 'Inertia system';
+        addLine(`Analyzing: "${topic}"`, 'info');
+        const related = knowledgeBase.filter(k => k.tags.some(t => topic.toLowerCase().includes(t) || t.includes(topic.toLowerCase().split(' ')[0])));
+        if (related.length > 0) {
+            addLine(`Found ${related.length} related knowledge nodes:`, 'out');
+            related.forEach(r => addLine(`  → ${r.title}: ${r.content.substring(0, 90)}...`, 'graph'));
+        } else { addLine('No direct matches found. Try a more specific term.', 'warn'); }
+    } else if (verb === 'graph') {
+        addLine('Redrawing knowledge graph...', 'info');
+        drawGraph(); addLine('[✓] Graph updated.', 'out');
+    } else if (verb === 'nodes') {
+        addLine(`Knowledge nodes (${knowledgeBase.length} total):`, 'info');
+        knowledgeBase.forEach(n => addLine(`  [${n.id}] ${n.title} — tags: ${n.tags.join(', ')}`, 'graph'));
+    } else if (verb === 'status') {
+        addLine('SYSTEM STATUS:', 'info');
+        addLine(`  Mode: ZERO-API (offline-first)`, 'out');
+        addLine(`  Nodes: ${knowledgeBase.length} | Edges: ${graphEdges.length}`, 'out');
+        addLine(`  Queries processed: ${queryCount}`, 'out');
+        addLine(`  Cache: 100% hit rate`, 'out');
+        addLine(`  Uptime: ∞`, 'out');
+    } else if (verb === 'clear') {
+        termBody.innerHTML = '';
+    } else {
+        addLine(`Command not recognized: "${cmd}". Type "help" for commands.`, 'err');
+    }
+    addBlank();
+}
+
+// Zero-API Fuzzy Search
+function fuzzySearch(query) {
+    const terms = query.toLowerCase().split(/\s+/);
+    return knowledgeBase.map(doc => {
+        const text = (doc.title + ' ' + doc.content + ' ' + doc.tags.join(' ')).toLowerCase();
+        const score = terms.reduce((s, t) => s + (doc.title.toLowerCase().includes(t) ? 3 : 0) + (text.includes(t) ? 1 : 0), 0);
+        return { ...doc, score };
+    }).filter(d => d.score > 0).sort((a, b) => b.score - a.score);
+}
+
+function highlight(text, query) {
+    const terms = query.toLowerCase().split(/\s+/);
+    let result = text;
+    terms.forEach(t => { result = result.replace(new RegExp(t, 'gi'), m => `<em>${m}</em>`); });
+    return result;
+}
+
+function doSearch() {
+    const q = document.getElementById('searchInput').value.trim();
+    const resultsEl = document.getElementById('searchResults');
+    if (!q) { resultsEl.innerHTML = '<p class="no-results">Start typing to search the local knowledge graph</p>'; return; }
+    const results = fuzzySearch(q);
+    if (results.length === 0) { resultsEl.innerHTML = '<p class="no-results">No results found.</p>'; return; }
+    resultsEl.innerHTML = results.slice(0, 5).map(r =>
+        `<div class="result-item" onclick="selectNode(${r.id})">
+            <div class="r-title">${highlight(r.title, q)}</div>
+            <div class="r-match">${highlight(r.content.substring(0, 100), q)}...</div>
+        </div>`
+    ).join('');
+}
+
+function selectNode(id) {
+    const node = knowledgeBase.find(n => n.id === id);
+    if (!node) return;
+    addLine(`Loading: ${node.title}`, 'info');
+    addLine(node.content, 'graph');
+    addLine(`Tags: ${node.tags.join(' · ')}`, 'out');
+    addBlank();
+}
+
+document.getElementById('searchInput').addEventListener('input', doSearch);
+document.getElementById('termInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+        const val = e.target.value.trim();
+        if (val) { runCommand(val); e.target.value = ''; }
+    }
+});
+
+// Knowledge Graph Canvas
+const gc = document.getElementById('graphCanvas');
+const gctx = gc.getContext('2d');
+let graphAngle = 0;
+
+function drawGraph() {
+    gctx.clearRect(0, 0, gc.width, gc.height);
+    gctx.fillStyle = '#020c05';
+    gctx.fillRect(0, 0, gc.width, gc.height);
+
+    // Draw edges
+    graphEdges.forEach(([a, b]) => {
+        const na = graphNodes.find(n => n.id === a), nb = graphNodes.find(n => n.id === b);
+        if (!na || !nb) return;
+        gctx.beginPath(); gctx.moveTo(na.x, na.y); gctx.lineTo(nb.x, nb.y);
+        gctx.strokeStyle = 'rgba(0,255,136,0.12)'; gctx.lineWidth = 1; gctx.stroke();
+    });
+
+    // Draw nodes
+    graphNodes.forEach(n => {
+        gctx.beginPath(); gctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        gctx.fillStyle = n.color; gctx.fill();
+        gctx.strokeStyle = 'rgba(0,255,136,0.4)'; gctx.lineWidth = 1; gctx.stroke();
+        gctx.fillStyle = n.color; gctx.font = `${Math.max(8, n.r - 1)}px sans-serif`;
+        gctx.textAlign = 'center'; gctx.textBaseline = 'middle';
+        gctx.fillText(n.label, n.x, n.y + n.r + 9);
+    });
+}
+
+function animateGraph() {
+    graphAngle += 0.005;
+    // Gently shift the central node
+    graphNodes[0].x = 190 + Math.sin(graphAngle) * 5;
+    graphNodes[0].y = 120 + Math.cos(graphAngle * 1.3) * 4;
+    drawGraph();
+    requestAnimationFrame(animateGraph);
+}
+
+boot();
+animateGraph();
+</script>
+</body>
+</html>
