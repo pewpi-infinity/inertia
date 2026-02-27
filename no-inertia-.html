@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>No Inertia — The Journey</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #06070f; color: #e2e8f0; min-height: 100vh; }
+
+        /* Navigation */
+        .site-nav { background: rgba(6,7,15,0.92); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.07); }
+        .nav-container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+        .nav-brand { font-size: 1.3rem; font-weight: 800; color: #fff; text-decoration: none; }
+        .nav-brand span { color: #ec4899; }
+        .nav-links { list-style: none; display: flex; gap: 0.25rem; }
+        .nav-links li a { color: #94a3b8; text-decoration: none; padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.875rem; transition: background 0.2s, color 0.2s; }
+        .nav-links li a:hover { background: rgba(255,255,255,0.07); color: #fff; }
+        .nav-links li a.active { background: rgba(236,72,153,0.15); color: #ec4899; font-weight: 600; }
+
+        /* Hero */
+        .hero { padding: 7rem 1.5rem 5rem; text-align: center; background: radial-gradient(ellipse at 50% 0%, rgba(236,72,153,0.1) 0%, transparent 55%); }
+        .hero-eyebrow { font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase; color: #ec4899; font-weight: 600; margin-bottom: 1.5rem; display: block; }
+        .hero h1 { font-size: 4.5rem; font-weight: 900; letter-spacing: -2.5px; line-height: 1.05; margin-bottom: 1.5rem; color: #fff; }
+        .hero h1 .accent { background: linear-gradient(135deg, #ec4899, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero-sub { font-size: 1.2rem; color: #64748b; max-width: 600px; margin: 0 auto 3rem; line-height: 1.65; }
+        .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .btn-pink { background: linear-gradient(135deg, #ec4899, #db2777); color: #fff; font-weight: 700; padding: 0.9rem 2.25rem; border-radius: 10px; border: none; font-size: 1rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 20px rgba(236,72,153,0.3); }
+        .btn-pink:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(236,72,153,0.45); }
+        .btn-outline { background: transparent; color: #e2e8f0; font-weight: 600; padding: 0.9rem 2.25rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); font-size: 1rem; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+        .btn-outline:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.25); }
+
+        /* Section Utility */
+        .sec { padding: 5rem 1.5rem; }
+        .sec-inner { max-width: 1200px; margin: 0 auto; }
+        .sec-header { margin-bottom: 3.5rem; }
+        .sec-header h2 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; color: #fff; margin-bottom: 0.75rem; }
+        .sec-header p { color: #64748b; font-size: 1rem; max-width: 540px; line-height: 1.65; }
+        .eyebrow { font-size: 0.75rem; letter-spacing: 2.5px; text-transform: uppercase; color: #ec4899; font-weight: 700; margin-bottom: 0.75rem; display: block; }
+
+        /* Analysis */
+        .analysis { background: rgba(255,255,255,0.02); }
+        .analysis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+        .analysis-text p { font-size: 0.95rem; color: #94a3b8; line-height: 1.8; margin-bottom: 1.25rem; }
+        .analysis-text p strong { color: #fff; }
+        .metric-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .metric-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.25rem; text-align: center; }
+        .metric-num { font-size: 2.25rem; font-weight: 900; display: block; margin-bottom: 0.25rem; background: linear-gradient(135deg, #ec4899, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .metric-label { font-size: 0.78rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+        .insight-list { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
+        .insight-item { display: flex; align-items: flex-start; gap: 0.75rem; }
+        .insight-dot { width: 6px; height: 6px; border-radius: 50%; background: #ec4899; flex-shrink: 0; margin-top: 7px; }
+        .insight-text { font-size: 0.875rem; color: #94a3b8; line-height: 1.6; }
+
+        /* Journey Timeline */
+        .timeline { max-width: 800px; margin: 0 auto; position: relative; }
+        .timeline::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, transparent 0%, rgba(236,72,153,0.4) 10%, rgba(139,92,246,0.4) 90%, transparent 100%); transform: translateX(-50%); }
+        .timeline-item { display: grid; grid-template-columns: 1fr 60px 1fr; gap: 1rem; margin-bottom: 2.5rem; align-items: center; }
+        .timeline-item:nth-child(even) .tl-content { order: 3; }
+        .timeline-item:nth-child(even) .tl-empty { order: 1; }
+        .tl-content { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.25rem; }
+        .tl-content:hover { border-color: rgba(236,72,153,0.25); }
+        .tl-date { font-size: 0.7rem; color: #ec4899; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.4rem; }
+        .tl-title { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 0.4rem; }
+        .tl-desc { font-size: 0.8rem; color: #64748b; line-height: 1.55; }
+        .tl-node { display: flex; align-items: center; justify-content: center; }
+        .tl-dot { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #ec4899, #8b5cf6); box-shadow: 0 0 0 5px rgba(236,72,153,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; z-index: 1; }
+        .tl-empty { }
+
+        /* Team */
+        .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.5rem; }
+        .team-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 2rem 1.5rem; text-align: center; transition: transform 0.2s, border-color 0.2s; }
+        .team-card:hover { transform: translateY(-5px); border-color: rgba(236,72,153,0.25); }
+        .team-avatar { width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 1rem; font-size: 2rem; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(236,72,153,0.2), rgba(139,92,246,0.2)); border: 2px solid rgba(236,72,153,0.25); }
+        .team-name { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 0.25rem; }
+        .team-role { font-size: 0.8rem; color: #ec4899; margin-bottom: 0.75rem; }
+        .team-bio { font-size: 0.8rem; color: #64748b; line-height: 1.55; margin-bottom: 1rem; }
+        .team-links { display: flex; gap: 0.5rem; justify-content: center; }
+        .team-link { background: rgba(255,255,255,0.06); color: #94a3b8; padding: 0.3rem 0.7rem; border-radius: 6px; font-size: 0.72rem; text-decoration: none; transition: background 0.2s, color 0.2s; }
+        .team-link:hover { background: rgba(236,72,153,0.15); color: #ec4899; }
+
+        /* Values */
+        .values-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+        .value-card { padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.025); }
+        .value-icon { font-size: 2rem; margin-bottom: 0.75rem; display: block; }
+        .value-title { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 0.4rem; }
+        .value-desc { font-size: 0.82rem; color: #64748b; line-height: 1.55; }
+
+        /* Footer */
+        footer { border-top: 1px solid rgba(255,255,255,0.07); padding: 3rem 1.5rem; }
+        .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .footer-text { color: #475569; font-size: 0.82rem; }
+        .footer-links { display: flex; gap: 1.25rem; }
+        .footer-links a { color: #64748b; text-decoration: none; font-size: 0.82rem; transition: color 0.2s; }
+        .footer-links a:hover { color: #ec4899; }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .analysis-grid { grid-template-columns: 1fr; }
+            .values-grid { grid-template-columns: 1fr 1fr; }
+            .timeline::before { left: 20px; }
+            .timeline-item { grid-template-columns: 40px 1fr; }
+            .timeline-item:nth-child(even) .tl-content { order: unset; }
+            .timeline-item:nth-child(even) .tl-empty { display: none; }
+            .tl-empty { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="site-nav">
+    <div class="nav-container">
+        <a href="#" class="nav-brand">No <span>Inertia</span></a>
+        <ul class="nav-links">
+            <li><a href="mario-shop-world.html">Mario Shop World</a></li>
+            <li><a href="ignition-index.html">Ignition Index</a></li>
+            <li><a href="infinity-ai-terminal.html">Infinity AI Terminal</a></li>
+            <li><a href="no-inertia-8.html">No Inertia 8</a></li>
+            <li><a href="no-inertia-.html" class="active">No Inertia</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+    <span class="hero-eyebrow">The Origin Story</span>
+    <h1>We Removed<br>Every <span class="accent">Obstacle.</span></h1>
+    <p class="hero-sub">No Inertia is a philosophy, a platform, and a movement. We exist to help builders, thinkers, and creators achieve escape velocity from the status quo.</p>
+    <div class="hero-actions">
+        <button class="btn-pink">Join the Journey</button>
+        <button class="btn-outline">Read Our Story →</button>
+    </div>
+</section>
+
+<!-- Detailed Analysis -->
+<section class="sec analysis">
+    <div class="sec-inner">
+        <div class="sec-header">
+            <span class="eyebrow">Detailed Analysis</span>
+            <h2>Why Inertia Holds You Back</h2>
+            <p>A rigorous examination of the forces that slow teams down — and how we engineered against every single one</p>
+        </div>
+        <div class="analysis-grid">
+            <div class="analysis-text">
+                <p><strong>Organizational inertia</strong> is the single largest predictor of product failure. Teams that cannot change direction quickly enough get overtaken by those that can. Our research across 500+ companies revealed that 73% of product delays originate not from technical complexity, but from decision-making friction.</p>
+                <p>Traditional platforms compound this problem by adding layers of tooling, configuration, and dependency management. Each new tool requires onboarding, maintenance, and eventual replacement — a continuous drain on engineering momentum.</p>
+                <p>No Inertia was built by analyzing every source of friction across the development lifecycle: from initial concept to deployment, from onboarding to offboarding, from idea to validated feature. <strong>We eliminated everything that wasn't essential.</strong></p>
+                <div class="insight-list">
+                    <div class="insight-item"><div class="insight-dot"></div><span class="insight-text">Context switching costs teams an average of 23 minutes of productive focus per interruption</span></div>
+                    <div class="insight-item"><div class="insight-dot"></div><span class="insight-text">73% of project delays stem from coordination overhead, not technical challenges</span></div>
+                    <div class="insight-item"><div class="insight-dot"></div><span class="insight-text">Teams using zero-config tooling ship 3.4× more features in the same time period</span></div>
+                    <div class="insight-item"><div class="insight-dot"></div><span class="insight-text">Developer experience directly correlates with product quality — happier teams ship better software</span></div>
+                </div>
+            </div>
+            <div>
+                <div class="metric-cards">
+                    <div class="metric-card"><span class="metric-num">3.4×</span><span class="metric-label">Faster Shipping</span></div>
+                    <div class="metric-card"><span class="metric-num">89%</span><span class="metric-label">Less Config</span></div>
+                    <div class="metric-card"><span class="metric-num">500+</span><span class="metric-label">Teams Analyzed</span></div>
+                    <div class="metric-card"><span class="metric-num">∞</span><span class="metric-label">Momentum Gained</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Journey Timeline -->
+<section class="sec">
+    <div class="sec-inner">
+        <div class="sec-header" style="text-align:center">
+            <span class="eyebrow">Our Journey</span>
+            <h2>From Concept to Movement</h2>
+            <p>The milestones that shaped No Inertia into what it is today</p>
+        </div>
+        <div class="timeline" id="timeline"></div>
+    </div>
+</section>
+
+<!-- Team -->
+<section class="sec" style="background:rgba(255,255,255,0.015)">
+    <div class="sec-inner">
+        <div class="sec-header">
+            <span class="eyebrow">Our Team</span>
+            <h2>The People Behind the Platform</h2>
+            <p>A team of builders, researchers, and designers united by the belief that velocity is a choice</p>
+        </div>
+        <div class="team-grid" id="teamGrid"></div>
+    </div>
+</section>
+
+<!-- Values -->
+<section class="sec">
+    <div class="sec-inner">
+        <div class="sec-header">
+            <span class="eyebrow">Our Values</span>
+            <h2>What We Stand For</h2>
+        </div>
+        <div class="values-grid" id="valuesGrid"></div>
+    </div>
+</section>
+
+<footer>
+    <div class="footer-inner">
+        <span class="footer-text">© 2025 No Inertia · The Origin Platform</span>
+        <div class="footer-links">
+            <a href="ignition-index.html">Ignition Index</a>
+            <a href="no-inertia-8.html">Variant 8</a>
+            <a href="infinity-ai-terminal.html">AI Terminal</a>
+            <a href="mario-shop-world.html">Mario World</a>
+        </div>
+    </div>
+</footer>
+
+<script>
+// Timeline data
+const timelineEvents = [
+    { date: 'Jan 2022', emoji: '💡', title: 'The Insight', desc: 'After watching the 12th project fail due to coordination friction, the founding insight crystallized: friction is the enemy of creation.' },
+    { date: 'Mar 2022', emoji: '🔬', title: 'Research Phase', desc: 'Analyzed 500+ engineering teams across 40 companies to map every source of development inertia.' },
+    { date: 'Jul 2022', emoji: '⚙️', title: 'First Prototype', desc: 'Built the zero-config core — a deployment system that worked with literally no configuration files required.' },
+    { date: 'Oct 2022', emoji: '🌱', title: 'First Users', desc: '10 early adopters reduced their deployment cycle from weeks to hours. The results were undeniable.' },
+    { date: 'Feb 2023', emoji: '🚀', title: 'Public Launch', desc: 'No Inertia launched publicly. 1,000 teams signed up in the first 48 hours.' },
+    { date: 'Jun 2023', emoji: '🧠', title: 'AI Integration', desc: 'Launched the AI-first architecture allowing teams to embed intelligence into any component in minutes.' },
+    { date: 'Nov 2023', emoji: '🌐', title: 'Edge Network', desc: 'Deployed the global edge network — every app now runs within 50ms of every user on Earth.' },
+    { date: 'Mar 2024', emoji: '♾️', title: 'Ignition Engine', desc: 'Released the Ignition Engine — a meta-platform enabling teams to build their own No Inertia-powered platforms.' },
+    { date: 'Today', emoji: '🌟', title: 'The Movement', desc: 'Thousands of teams. Millions of users. One shared belief: that the best ideas deserve the fastest path to reality.' },
+];
+
+document.getElementById('timeline').innerHTML = timelineEvents.map((e, i) =>
+    i % 2 === 0
+        ? `<div class="timeline-item">
+            <div class="tl-content"><div class="tl-date">${e.date}</div><div class="tl-title">${e.title}</div><div class="tl-desc">${e.desc}</div></div>
+            <div class="tl-node"><div class="tl-dot">${e.emoji}</div></div>
+            <div class="tl-empty"></div>
+           </div>`
+        : `<div class="timeline-item">
+            <div class="tl-empty"></div>
+            <div class="tl-node"><div class="tl-dot">${e.emoji}</div></div>
+            <div class="tl-content"><div class="tl-date">${e.date}</div><div class="tl-title">${e.title}</div><div class="tl-desc">${e.desc}</div></div>
+           </div>`
+).join('');
+
+// Team data
+const team = [
+    { emoji: '👩‍💻', name: 'Aisha Patel', role: 'Co-founder & CEO', bio: 'Former VP Engineering at two unicorns. Obsessed with removing every obstacle between ideas and impact.', links: ['GitHub', 'Twitter'] },
+    { emoji: '🧑‍🔬', name: 'Leo Zhang', role: 'Co-founder & CTO', bio: 'Systems engineer who built distributed infrastructure for 100M+ user platforms before starting No Inertia.', links: ['GitHub', 'Blog'] },
+    { emoji: '👩‍🎨', name: 'Mia Torres', role: 'Head of Design', bio: 'Believes that great design is invisible. Every interaction she designs feels effortless because it is.', links: ['Portfolio', 'Twitter'] },
+    { emoji: '🧑‍🚀', name: 'Kai Nakamura', role: 'Head of AI', bio: 'PhD in distributed systems. Building the AI layer that makes every app intelligent without code.', links: ['Papers', 'GitHub'] },
+    { emoji: '👩‍🔬', name: 'Zara Ahmed', role: 'Head of Research', bio: 'Studies how teams work and why they stall. Turns insights from 500+ team analyses into product features.', links: ['Research', 'Twitter'] },
+    { emoji: '🧑‍💼', name: 'Sam Obi', role: 'Head of Growth', bio: 'Grew three developer tools from 0 to 100K users. Knows what builders need before they know they need it.', links: ['LinkedIn', 'Blog'] },
+    { emoji: '👩‍🏫', name: 'Elena Petrov', role: 'Developer Relations', bio: 'Has taught thousands of engineers how to ship faster. The human bridge between our team and our community.', links: ['Twitter', 'YouTube'] },
+    { emoji: '🧑‍🎤', name: 'Marcus Reed', role: 'Community Lead', bio: 'Built the No Inertia community from 10 Slack users to a global movement of 50,000+ builders.', links: ['Discord', 'Twitter'] },
+];
+
+document.getElementById('teamGrid').innerHTML = team.map(m =>
+    `<div class="team-card">
+        <div class="team-avatar">${m.emoji}</div>
+        <div class="team-name">${m.name}</div>
+        <div class="team-role">${m.role}</div>
+        <div class="team-bio">${m.bio}</div>
+        <div class="team-links">${m.links.map(l => `<a href="#" class="team-link">${l}</a>`).join('')}</div>
+    </div>`
+).join('');
+
+// Values
+const values = [
+    { icon: '⚡', title: 'Velocity Above All', desc: 'Speed of learning and shipping is the only sustainable competitive advantage. We optimize for it obsessively.' },
+    { icon: '🔮', title: 'Radical Simplicity', desc: 'Every layer of complexity we remove is a burden we spare every future builder. Simplicity is a design choice.' },
+    { icon: '🌍', title: 'Builders First', desc: 'Every decision we make is filtered through a single question: does this make builders\' lives better?' },
+    { icon: '🔗', title: 'Composability', desc: 'The best systems are modular. Combine anything with anything. The sum is always greater than the parts.' },
+    { icon: '🌱', title: 'Sustainable Growth', desc: 'We grow by making our users successful, not by extracting from them. Their wins are our wins.' },
+    { icon: '♾️', title: 'Infinite Curiosity', desc: 'We never stop questioning assumptions. The next breakthrough is always one more question away.' },
+];
+
+document.getElementById('valuesGrid').innerHTML = values.map(v =>
+    `<div class="value-card">
+        <span class="value-icon">${v.icon}</span>
+        <div class="value-title">${v.title}</div>
+        <div class="value-desc">${v.desc}</div>
+    </div>`
+).join('');
+</script>
+</body>
+</html>

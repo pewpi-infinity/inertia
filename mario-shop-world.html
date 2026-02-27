@@ -1,1 +1,306 @@
-<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Mario Shop</title>\n    <link rel="stylesheet" href="styles.css">\n</head>\n<body>\n    <nav>\n        <ul>\n            <li><a href="ignition-index.html">Ignition Index</a></li>\n            <li><a href="infinity-ai-terminal.html">Infinity AI Terminal</a></li>\n            <li><a href="no-inertia-8.html">No Inertia 8</a></li>\n            <li><a href="no-inertia-.html">No Inertia</a></li>\n        </ul>\n    </nav>\n    <h1>Welcome to Mario Shop</h1>\n    <p>This is the full original content of the Mario Shop page.</p>\n</body>\n</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mario Shop World</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #1a0533; color: #fff; min-height: 100vh; }
+
+        /* Navigation */
+        .site-nav { background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000; border-bottom: 2px solid #e8c940; }
+        .nav-container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+        .nav-brand { font-size: 1.3rem; font-weight: 700; color: #e8c940; text-decoration: none; letter-spacing: 1px; }
+        .nav-links { list-style: none; display: flex; gap: 0.25rem; }
+        .nav-links li a { color: #ccc; text-decoration: none; padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.875rem; transition: background 0.2s, color 0.2s; }
+        .nav-links li a:hover { background: #e8c940; color: #1a0533; }
+        .nav-links li a.active { background: #e8c940; color: #1a0533; font-weight: 600; }
+
+        /* Hero */
+        .hero { text-align: center; padding: 3rem 1rem 2rem; background: linear-gradient(180deg, #2d0a5e 0%, #1a0533 100%); }
+        .hero h1 { font-size: 3rem; font-weight: 900; color: #e8c940; text-shadow: 3px 3px 0 #a0027a; margin-bottom: 0.5rem; letter-spacing: -1px; }
+        .hero p { color: #c9a0dc; font-size: 1.15rem; margin-bottom: 1.5rem; }
+
+        /* Token Bar */
+        .token-bar { background: rgba(255,255,255,0.07); border: 1px solid #e8c940; border-radius: 12px; padding: 1rem 1.5rem; max-width: 600px; margin: 0 auto 2rem; display: flex; align-items: center; gap: 1.5rem; }
+        .token-display { font-size: 1.4rem; font-weight: 700; color: #e8c940; }
+        .token-display span { font-size: 2rem; margin-right: 0.4rem; }
+        .token-btn { background: #e8c940; color: #1a0533; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 700; cursor: pointer; transition: transform 0.1s; font-size: 0.9rem; }
+        .token-btn:hover { transform: scale(1.05); }
+        .token-btn:active { transform: scale(0.95); }
+
+        /* Physics Canvas */
+        .physics-section { max-width: 900px; margin: 0 auto 2.5rem; padding: 0 1rem; }
+        .physics-section h2 { text-align: center; color: #c9a0dc; font-size: 1.3rem; margin-bottom: 1rem; }
+        #physicsCanvas { display: block; margin: 0 auto; background: #0d0020; border: 2px solid #5b2d8e; border-radius: 12px; cursor: pointer; }
+        .physics-controls { display: flex; justify-content: center; gap: 1rem; margin-top: 0.75rem; }
+        .ctrl-btn { background: #5b2d8e; color: #fff; border: none; padding: 0.5rem 1.2rem; border-radius: 8px; cursor: pointer; font-size: 0.875rem; transition: background 0.2s; }
+        .ctrl-btn:hover { background: #a0027a; }
+
+        /* World Items */
+        .shop-section { max-width: 1200px; margin: 0 auto; padding: 0 1rem 4rem; }
+        .shop-section h2 { text-align: center; font-size: 2rem; color: #e8c940; margin-bottom: 0.5rem; }
+        .shop-section .subtitle { text-align: center; color: #c9a0dc; margin-bottom: 2rem; font-size: 1rem; }
+        .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.25rem; }
+        .item-card { background: linear-gradient(135deg, rgba(91,45,142,0.4), rgba(160,2,122,0.2)); border: 1px solid #5b2d8e; border-radius: 14px; padding: 1.25rem; text-align: center; transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s; cursor: pointer; position: relative; overflow: hidden; }
+        .item-card:hover { transform: translateY(-5px); border-color: #e8c940; box-shadow: 0 8px 25px rgba(232,201,64,0.2); }
+        .item-card.owned { border-color: #4ade80; }
+        .item-card.owned::after { content: '✓ OWNED'; position: absolute; top: 8px; right: 8px; background: #4ade80; color: #0a0a0a; font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+        .item-icon { font-size: 3rem; margin-bottom: 0.75rem; display: block; }
+        .item-name { font-weight: 700; font-size: 1rem; margin-bottom: 0.25rem; color: #fff; }
+        .item-desc { color: #c9a0dc; font-size: 0.8rem; margin-bottom: 1rem; line-height: 1.4; }
+        .item-price { background: rgba(232,201,64,0.15); border: 1px solid #e8c940; border-radius: 8px; padding: 0.4rem 0.75rem; display: inline-block; color: #e8c940; font-weight: 700; font-size: 0.9rem; }
+        .buy-btn { display: block; width: 100%; margin-top: 0.75rem; background: linear-gradient(90deg, #a0027a, #5b2d8e); color: #fff; border: none; padding: 0.6rem; border-radius: 8px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; font-size: 0.875rem; }
+        .buy-btn:hover { opacity: 0.85; }
+        .buy-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* World Map */
+        .world-map { max-width: 900px; margin: 0 auto 2.5rem; padding: 0 1rem; }
+        .world-map h2 { text-align: center; font-size: 1.8rem; color: #e8c940; margin-bottom: 1.5rem; }
+        .map-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; }
+        .map-tile { background: rgba(91,45,142,0.3); border: 1px solid #3d1a6e; border-radius: 8px; padding: 1rem 0.5rem; text-align: center; font-size: 1.5rem; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+        .map-tile:hover { background: rgba(160,2,122,0.4); transform: scale(1.08); }
+        .map-tile.current { border-color: #e8c940; background: rgba(232,201,64,0.15); }
+        .map-tile .world-num { display: block; font-size: 0.65rem; color: #c9a0dc; margin-top: 0.25rem; font-weight: 600; }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 2rem; right: 2rem; background: #1a0533; border: 1px solid #e8c940; color: #e8c940; padding: 0.75rem 1.25rem; border-radius: 10px; font-weight: 600; transform: translateY(100px); opacity: 0; transition: all 0.3s; z-index: 9999; }
+        .toast.show { transform: translateY(0); opacity: 1; }
+    </style>
+</head>
+<body>
+
+<nav class="site-nav">
+    <div class="nav-container">
+        <a href="#" class="nav-brand">∞ Inertia</a>
+        <ul class="nav-links">
+            <li><a href="mario-shop-world.html" class="active">Mario Shop World</a></li>
+            <li><a href="ignition-index.html">Ignition Index</a></li>
+            <li><a href="infinity-ai-terminal.html">Infinity AI Terminal</a></li>
+            <li><a href="no-inertia-8.html">No Inertia 8</a></li>
+            <li><a href="no-inertia-.html">No Inertia</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="hero">
+    <h1>🍄 Mario Shop World</h1>
+    <p>Collect tokens, power up your world, and explore physics-driven adventures</p>
+    <div class="token-bar">
+        <div class="token-display"><span>🪙</span><span id="tokenCount">150</span> Tokens</div>
+        <button class="token-btn" onclick="earnTokens()">+ Collect Coins</button>
+        <button class="token-btn" onclick="resetGame()">🔄 Reset</button>
+    </div>
+</div>
+
+<!-- Capacitor Physics Engine -->
+<div class="physics-section">
+    <h2>⚡ Capacitor Physics Engine — Click canvas to launch coins!</h2>
+    <canvas id="physicsCanvas" width="760" height="280"></canvas>
+    <div class="physics-controls">
+        <button class="ctrl-btn" onclick="addBall()">Launch Coin</button>
+        <button class="ctrl-btn" onclick="addPlatform()">Add Platform</button>
+        <button class="ctrl-btn" onclick="toggleGravity()">Flip Gravity</button>
+        <button class="ctrl-btn" onclick="clearBalls()">Clear All</button>
+    </div>
+</div>
+
+<!-- World Map -->
+<div class="world-map">
+    <h2>🗺️ World Map</h2>
+    <div class="map-grid" id="mapGrid"></div>
+</div>
+
+<!-- Shop Items -->
+<div class="shop-section">
+    <h2>🏪 Item Shop</h2>
+    <p class="subtitle">Spend your tokens to unlock powerful items and abilities</p>
+    <div class="items-grid" id="itemsGrid"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Token System
+let tokens = parseInt(localStorage.getItem('marioTokens') || '150');
+let ownedItems = JSON.parse(localStorage.getItem('marioOwned') || '[]');
+
+function updateTokenDisplay() {
+    document.getElementById('tokenCount').textContent = tokens;
+    localStorage.setItem('marioTokens', tokens);
+}
+
+function earnTokens() {
+    const earned = Math.floor(Math.random() * 20) + 5;
+    tokens += earned;
+    updateTokenDisplay();
+    showToast(`+${earned} tokens collected! 🪙`);
+    addBall();
+}
+
+function resetGame() {
+    tokens = 150; ownedItems = [];
+    localStorage.removeItem('marioTokens'); localStorage.removeItem('marioOwned');
+    updateTokenDisplay(); renderItems();
+    showToast('Game reset! 🔄');
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Shop Items Data
+const shopItems = [
+    { id: 'mushroom', icon: '🍄', name: 'Super Mushroom', desc: 'Double your size and smash through obstacles', price: 30, world: 1 },
+    { id: 'star', icon: '⭐', name: 'Super Star', desc: 'Temporary invincibility and speed boost', price: 50, world: 1 },
+    { id: 'fireflower', icon: '🌸', name: 'Fire Flower', desc: 'Shoot fireballs to defeat enemies from range', price: 45, world: 2 },
+    { id: 'cape', icon: '🦸', name: 'Cape Feather', desc: 'Soar through the skies and deflect attacks', price: 75, world: 3 },
+    { id: 'tanooki', icon: '🦝', name: 'Tanooki Suit', desc: 'Fly, tail-whip, and turn into a statue', price: 90, world: 3 },
+    { id: 'frog', icon: '🐸', name: 'Frog Suit', desc: 'Supercharged underwater swimming speed', price: 60, world: 2 },
+    { id: 'hammer', icon: '🔨', name: 'Hammer Bros Suit', desc: 'Throw hammers at enemies with precision', price: 80, world: 4 },
+    { id: 'yoshi', icon: '🦕', name: 'Yoshi Egg', desc: 'Hatch a loyal Yoshi companion for your journey', price: 100, world: 4 },
+    { id: 'coin10', icon: '🪙', name: '10-Coin Pack', desc: 'A quick bundle of 10 bonus tokens', price: 5, world: 1 },
+    { id: 'oneup', icon: '💚', name: '1-Up Mushroom', desc: 'Gain an extra life for your adventure', price: 40, world: 2 },
+    { id: 'iceball', icon: '🧊', name: 'Ice Ball', desc: 'Freeze enemies in their tracks', price: 55, world: 5 },
+    { id: 'powerstar', icon: '🌟', name: 'Power Star', desc: 'Unlock a new world with cosmic energy', price: 120, world: 5 },
+];
+
+function renderItems() {
+    const grid = document.getElementById('itemsGrid');
+    grid.innerHTML = shopItems.map(item => {
+        const owned = ownedItems.includes(item.id);
+        return `<div class="item-card ${owned ? 'owned' : ''}" id="card-${item.id}">
+            <span class="item-icon">${item.icon}</span>
+            <div class="item-name">${item.name}</div>
+            <div class="item-desc">${item.desc}</div>
+            <div class="item-price">🪙 ${item.price}</div>
+            <button class="buy-btn" onclick="buyItem('${item.id}', ${item.price})" ${owned ? 'disabled' : ''}>
+                ${owned ? '✓ Owned' : 'Buy Now'}
+            </button>
+        </div>`;
+    }).join('');
+}
+
+function buyItem(id, price) {
+    if (tokens < price) { showToast('Not enough tokens! 😢'); return; }
+    if (ownedItems.includes(id)) { showToast('Already owned!'); return; }
+    tokens -= price;
+    ownedItems.push(id);
+    localStorage.setItem('marioOwned', JSON.stringify(ownedItems));
+    updateTokenDisplay();
+    renderItems();
+    const item = shopItems.find(i => i.id === id);
+    showToast(`${item.icon} ${item.name} purchased!`);
+}
+
+// World Map
+const worldEmojis = ['🏔️','🌊','🌋','🏜️','🌿','❄️','🌆','🌌','🔮','🏯',
+                     '⚡','🌸','🎭','💎','🌍','🌙','☀️','🎪','🗼','🎯'];
+function renderMap() {
+    const grid = document.getElementById('mapGrid');
+    grid.innerHTML = worldEmojis.map((e, i) =>
+        `<div class="map-tile ${i===0?'current':''}" onclick="selectWorld(${i+1}, this)">
+            ${e}<span class="world-num">W-${i+1}</span>
+        </div>`
+    ).join('');
+}
+function selectWorld(n, el) {
+    document.querySelectorAll('.map-tile').forEach(t => t.classList.remove('current'));
+    el.classList.add('current');
+    showToast(`Entered World ${n}! 🗺️`);
+}
+
+// Capacitor Physics Engine
+const canvas = document.getElementById('physicsCanvas');
+const ctx = canvas.getContext('2d');
+let balls = [], platforms = [], gravity = 0.5, gravDir = 1;
+
+function addBall(x, y) {
+    balls.push({
+        x: x || Math.random() * canvas.width,
+        y: y || 20,
+        vx: (Math.random() - 0.5) * 6,
+        vy: Math.random() * 2,
+        r: Math.random() * 8 + 8,
+        color: ['#e8c940','#ff6b6b','#4ade80','#60a5fa','#f97316'][Math.floor(Math.random()*5)],
+        bounces: 0
+    });
+}
+
+function addPlatform() {
+    platforms.push({
+        x: Math.random() * (canvas.width - 120),
+        y: Math.random() * (canvas.height - 60) + 30,
+        w: 80 + Math.random() * 80, h: 12,
+        color: '#5b2d8e'
+    });
+}
+
+function clearBalls() { balls = []; platforms = []; }
+function toggleGravity() { gravDir *= -1; showToast(gravDir > 0 ? '⬇️ Normal gravity' : '⬆️ Inverted gravity!'); }
+
+canvas.addEventListener('click', e => {
+    const rect = canvas.getBoundingClientRect();
+    addBall(e.clientX - rect.left, e.clientY - rect.top);
+    tokens++; updateTokenDisplay();
+});
+
+// Default platforms
+platforms.push({x:100,y:180,w:120,h:12,color:'#5b2d8e'});
+platforms.push({x:350,y:140,w:100,h:12,color:'#a0027a'});
+platforms.push({x:560,y:200,w:130,h:12,color:'#5b2d8e'});
+
+function physicsLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw platforms
+    platforms.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.roundRect(p.x, p.y, p.w, p.h, 4);
+        ctx.fill();
+    });
+
+    // Draw floor/ceiling decoration
+    ctx.fillStyle = '#5b2d8e';
+    ctx.fillRect(0, canvas.height - 10, canvas.width, 10);
+    ctx.fillRect(0, 0, canvas.width, 4);
+
+    // Update and draw balls
+    balls = balls.filter(b => b.bounces < 30 && b.y > -50 && b.y < canvas.height + 50);
+    balls.forEach(b => {
+        b.vy += gravity * gravDir;
+        b.x += b.vx; b.y += b.vy;
+        if (b.x - b.r < 0) { b.x = b.r; b.vx = Math.abs(b.vx); }
+        if (b.x + b.r > canvas.width) { b.x = canvas.width - b.r; b.vx = -Math.abs(b.vx); }
+        if (b.y + b.r > canvas.height - 10) { b.y = canvas.height - 10 - b.r; b.vy *= -0.65; b.vx *= 0.92; b.bounces++; }
+        if (gravDir < 0 && b.y - b.r < 4) { b.y = 4 + b.r; b.vy = Math.abs(b.vy) * 0.65; b.bounces++; }
+        platforms.forEach(p => {
+            if (b.x+b.r > p.x && b.x-b.r < p.x+p.w && b.y+b.r > p.y && b.y+b.r < p.y+p.h+10) {
+                b.y = p.y - b.r; b.vy *= -0.6; b.bounces++;
+            }
+        });
+        // Draw coin
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+        ctx.fillStyle = b.color; ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        ctx.font = `${b.r}px serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('🪙', b.x, b.y);
+    });
+
+    requestAnimationFrame(physicsLoop);
+}
+
+// Init
+for (let i = 0; i < 5; i++) addBall();
+renderItems();
+renderMap();
+updateTokenDisplay();
+physicsLoop();
+</script>
+</body>
+</html>
